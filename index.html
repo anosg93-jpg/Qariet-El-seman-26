@@ -16,17 +16,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* درجات الألوان المستخرجة بدقة من شعار قرية السمان */
-            --bg: #ece8dc; /* خلفية كريمي دافئة مأخوذة من إطار الشعار */
-            --main-text: #132a1f; /* أخضر ملكي داكن جداً للنصوص الرئيسية */
-            --desc-text: #415a4d; /* أخضر زيتي مائل للرمادي للنصوص الفرعية */
-            --accent: #1d3e2e; /* الأخضر الداكن الأساسي لجسم الشعار */
-            --yellow-gold: #c29b38; /* الذهبي الدافئ للقمح والكتابة في اللوجو */
+            --bg: #ece8dc; 
+            --main-text: #132a1f; 
+            --desc-text: #415a4d; 
+            --accent: #1d3e2e; 
+            --yellow-gold: #c29b38; 
             --address-tag: #c29b38;
-            --white: #f7f5ed; /* أوف وايت كريمي للكرت والهيدر */
-            --glass: rgba(247, 245, 237, 0.88);
+            --white: #f7f5ed; 
             --success-dark: #132a1f; 
-            --header-bg: #f7f5ed;
+            --header-bg: #f7f5ed; /* خلفية معتمة بالكامل لحجب أي عناصر خلفية */
         }
 
         body.dark-mode {
@@ -34,7 +32,6 @@
             --main-text: #f7f5ed;
             --desc-text: #9eb1a6;
             --white: #13281d;
-            --glass: rgba(19, 40, 29, 0.88);
             --header-bg: #13281d;
         }
 
@@ -83,12 +80,12 @@
         @keyframes progress { from { width: 0; } to { width: 100%; } }
         .splash-hidden { transform: translateY(-100%); pointer-events: none; }
 
-        /* --- الهيدر --- */
+        /* --- الهيدر المثبت المعتم الشامل --- */
         header { 
             background: var(--header-bg); 
-            position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+            position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             display: flex; flex-direction: column; align-items: center;
-            padding: 15px 0;
+            padding-top: 15px; margin-bottom: 10px;
         }
         .header-top { width: 100%; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; }
         
@@ -109,13 +106,19 @@
         .branch-header-line { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; }
         .addr-tag { color: var(--yellow-gold); font-weight: 800; }
 
-        /* القائمة - تم توسيع المسافات أكثر بين جميع أزرار الأقسام (gap: 45px) */
-        .category-nav { display: flex; overflow-x: auto; white-space: nowrap; padding: 18px 30px; gap: 45px; scrollbar-width: none; background: var(--glass); backdrop-filter: blur(20px); position: sticky; top: 205px; z-index: 999; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+        /* القائمة - تم إدماجها بالكامل داخل الهيدر بخلفية معتمة لمنع التداخل */
+        .category-nav { 
+            display: flex; overflow-x: auto; white-space: nowrap; 
+            padding: 12px 30px 15px 30px; gap: 45px; scrollbar-width: none; 
+            background: var(--header-bg); width: 100%;
+            border-top: 0.5px solid rgba(0,0,0,0.05); 
+        }
         .cat-item { display: flex; flex-direction: column; align-items: center; min-width: 90px; cursor: pointer; flex-shrink: 0; }
         .cat-img-box { width: 62px; height: 62px; border-radius: 20px; background: #e0dad0; overflow: hidden; border: 2.5px solid transparent; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .cat-img-box img { width: 100%; height: 100%; object-fit: cover; }
         .cat-item.active .cat-img-box { border-color: var(--yellow-gold); transform: scale(1.1); box-shadow: 0 6px 15px rgba(194, 155, 56, 0.3); }
         .cat-item span { font-size: 0.82rem; font-weight: 800; color: var(--main-text); margin-top: 8px; }
+        
         .menu-list { padding: 15px; max-width: 600px; margin: auto; }
         
         /* الكروت */
@@ -226,9 +229,11 @@
                 <span>السيوف - اسكندرية</span>
             </div>
         </div>
+        
+        <!-- الأقسام أصبحت جزءاً لا يتجزأ من الهيدر المثبت لمنع أي تسريب بصري -->
+        <div class="category-nav" id="catNav"></div>
     </header>
 
-    <div class="category-nav" id="catNav"></div>
     <div id="menuList" class="menu-list"></div>
 
     <div id="install-bar">
@@ -585,14 +590,29 @@
             window.open(`https://wa.me/201276191448?text=${encodeURIComponent(msg)}`);
         }
 
+        // تسجيل الـ Service Worker مع آلية التحديث التلقائي الفوري دون الحاجة لحذف بيانات المتصفح
         function initPWA() {
             if ('serviceWorker' in navigator) {
+                let refreshing = false;
+                
+                // إعادة تحميل الصفحة فور تطبيق السيرفس وركر الجديد بالخلفية
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
+
                 navigator.serviceWorker.register('sw.js').then(reg => {
+                    // فحص وجود تحديث جديد تلقائياً في كل مرة يتم فتح المنيو فيها
+                    reg.update();
+                    
                     reg.addEventListener('updatefound', () => {
                         const newWorker = reg.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                window.location.reload();
+                                // إرسال أمر التجاوز للسيرفس وركر الجديد للتفعيل الفوري
+                                newWorker.postMessage({ action: 'skipWaiting' });
                             }
                         });
                     });
@@ -602,10 +622,8 @@
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
-            if (!isStandalone) {
-                if (isIOS) {
-                    document.getElementById('install-bar').style.display = 'flex';
-                }
+            if (!isStandalone && isIOS) {
+                document.getElementById('install-bar').style.display = 'flex';
             }
         }
 
