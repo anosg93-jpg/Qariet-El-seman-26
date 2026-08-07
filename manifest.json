@@ -1,0 +1,23 @@
+{
+  "name": "قرية السمان",
+  "short_name": "السمان",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ece8dc",
+  "theme_color": "#1d3e2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/logoseman.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logoseman.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
