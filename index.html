@@ -16,6 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* درجات الألوان المستخرجة بدقة من شعار قرية السمان */
             --bg: #ece8dc; 
             --main-text: #132a1f; 
             --desc-text: #415a4d; 
@@ -24,7 +25,7 @@
             --address-tag: #c29b38;
             --white: #f7f5ed; 
             --success-dark: #132a1f; 
-            --header-bg: #f7f5ed; /* خلفية معتمة بالكامل لحجب أي عناصر خلفية */
+            --header-bg: #f7f5ed; 
         }
 
         body.dark-mode {
@@ -106,7 +107,7 @@
         .branch-header-line { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: 700; }
         .addr-tag { color: var(--yellow-gold); font-weight: 800; }
 
-        /* القائمة - تم إدماجها بالكامل داخل الهيدر بخلفية معتمة لمنع التداخل */
+        /* القائمة */
         .category-nav { 
             display: flex; overflow-x: auto; white-space: nowrap; 
             padding: 12px 30px 15px 30px; gap: 45px; scrollbar-width: none; 
@@ -174,6 +175,7 @@
         .social-btn-link { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.3s; }
         .social-btn-link:hover { transform: scale(1.1); }
         .social-btn-link.wa-color { background: #25D366; }
+        .social-btn-link.fb-color { background: #1877F2; }
         .social-btn-link svg { width: 24px; height: 24px; fill: white; }
         .footer-rights { font-size: 0.8rem; color: var(--main-text); font-weight: 600; margin-bottom: 5px; }
         .dev-credit { font-size: 0.85rem; color: var(--desc-text); font-weight: 700; }
@@ -230,7 +232,6 @@
             </div>
         </div>
         
-        <!-- الأقسام أصبحت جزءاً لا يتجزأ من الهيدر المثبت لمنع أي تسريب بصري -->
         <div class="category-nav" id="catNav"></div>
     </header>
 
@@ -261,6 +262,9 @@
         <div class="social-icons-box">
             <a href="https://wa.me/201276191448" target="_blank" class="social-btn-link wa-color" title="واتساب">
                 <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.022 14.056.996 11.43.996c-5.442 0-9.87 4.372-9.874 9.799-.001 1.742.483 3.442 1.398 4.914l-.995 3.637 3.737-.971zm10.873-6.53c-.293-.146-1.734-.852-2.001-.95-.267-.099-.463-.146-.659.146-.195.293-.759.95-.93 1.146-.171.195-.341.219-.634.073-.293-.146-1.239-.456-2.361-1.456-.872-.777-1.46-1.738-1.632-2.031-.171-.293-.018-.452.129-.597.132-.131.293-.341.44-.512.146-.171.195-.293.293-.488.098-.195.049-.366-.024-.512-.074-.146-.659-1.586-.902-2.17-.238-.574-.479-.496-.659-.506-.171-.008-.366-.01-.562-.01-.195 0-.513.073-.781.366-.269.293-1.025 1.001-1.025 2.441 0 1.439 1.049 2.83 1.196 3.025.146.195 2.064 3.15 5.003 4.415.699.301 1.244.482 1.67.618.703.223 1.344.192 1.85.117.564-.083 1.734-.707 1.978-1.39.244-.683.244-1.269.171-1.39-.073-.122-.269-.195-.562-.342z"/></svg>
+            </a>
+            <a href="https://www.facebook.com/100064232763485/posts/pfbid025DtwfjEobFM686ExA8o9aVMj1QF5y14LvGsmRsP4L2Xk24RG4UiTiwpu5mjByrCjl/" target="_blank" class="social-btn-link fb-color" title="فيسبوك">
+                <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             </a>
         </div>
 
@@ -561,7 +565,7 @@
             const n = document.getElementById('uName').value, p = document.getElementById('uPhone').value, a = document.getElementById('uAddr').value;
             
             if (!n || !p || cart.length === 0) {
-                return alert("يرجى إكمال البيانات واختيار الأصناف");
+                return alert("يرجى إكمال البيانات وااختيار الأصناف");
             }
             if (selectedOrderType === 'delivery' && !a) {
                 return alert("يرجى إدخال عنوان التوصيل بالتفصيل");
@@ -590,12 +594,10 @@
             window.open(`https://wa.me/201276191448?text=${encodeURIComponent(msg)}`);
         }
 
-        // تسجيل الـ Service Worker مع آلية التحديث التلقائي الفوري دون الحاجة لحذف بيانات المتصفح
         function initPWA() {
             if ('serviceWorker' in navigator) {
                 let refreshing = false;
                 
-                // إعادة تحميل الصفحة فور تطبيق السيرفس وركر الجديد بالخلفية
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     if (!refreshing) {
                         refreshing = true;
@@ -604,14 +606,12 @@
                 });
 
                 navigator.serviceWorker.register('sw.js').then(reg => {
-                    // فحص وجود تحديث جديد تلقائياً في كل مرة يتم فتح المنيو فيها
                     reg.update();
                     
                     reg.addEventListener('updatefound', () => {
                         const newWorker = reg.installing;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // إرسال أمر التجاوز للسيرفس وركر الجديد للتفعيل الفوري
                                 newWorker.postMessage({ action: 'skipWaiting' });
                             }
                         });

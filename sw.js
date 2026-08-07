@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quail-village-v2.0';
+const CACHE_NAME = 'quail-village-v3.0';
 const STATIC_ASSETS = [
     './',
     './index.html',
