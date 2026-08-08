@@ -16,7 +16,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* درجات الألوان المستخرجة بدقة من شعار قرية السمان */
             --bg: #ece8dc; 
             --main-text: #132a1f; 
             --desc-text: #415a4d; 
@@ -181,7 +180,7 @@
         .dev-credit { font-size: 0.85rem; color: var(--desc-text); font-weight: 700; }
         .dev-credit a { color: var(--accent); text-decoration: none; display: block; margin-top: 3px; }
 
-        /* مودال السلة */
+        /* النوافذ المودال العامة */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--white); width: 100%; max-width: 500px; padding: 25px; border-radius: 30px 30px 0 0; max-height: 90vh; overflow-y: auto; color: var(--main-text); }
         .cart-item-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: rgba(0,0,0,0.04); border-radius: 18px; margin-bottom: 10px; }
@@ -250,6 +249,21 @@
         </div>
     </div>
 
+    <!-- نافذة إشعار التجهيز المسبق قبل الإضافة للسلة -->
+    <div id="noticeModal" class="modal" style="z-index: 2500; align-items: center;" onclick="if(event.target==this) closeNoticeModal()">
+        <div class="modal-content" style="border-radius: 28px; text-align: center; max-width: 380px; margin: auto; padding: 25px;">
+            <div style="font-size: 2.5rem; margin-bottom: 8px;">⏰</div>
+            <h3 style="color: var(--accent); margin-bottom: 12px; font-weight: 800; font-size: 1.15rem;">تنبيه بخصوص تجهيز الطلب</h3>
+            <p style="font-size: 0.9rem; color: var(--main-text); font-weight: 700; line-height: 1.6; margin-bottom: 20px; background: rgba(194, 155, 56, 0.12); padding: 14px; border-radius: 16px; border: 1px dashed var(--yellow-gold);">
+                يرجى العلم أن تجهيز الطلبات يستغرق يوماً تقريباً، أو يمكن طلب الأصناف في صباح اليوم لتصلكم في نفس اليوم.
+            </p>
+            <div style="display: flex; gap: 10px;">
+                <button class="submit-btn" style="flex: 1; padding: 14px;" onclick="confirmAddToCart()">وافق</button>
+                <button type="button" style="flex: 1; padding: 14px; border-radius: 18px; border: 1.5px solid var(--desc-text); background: transparent; color: var(--main-text); font-weight: 800; cursor: pointer;" onclick="closeNoticeModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
     <footer class="restaurant-footer">
         <div class="footer-branches-container">
             <div class="footer-branch-item">
@@ -279,9 +293,15 @@
         <div class="modal-content">
             <h2 style="margin-bottom: 20px;">طلباتك</h2>
             <div id="cartItemsList"></div>
-            <div style="margin: 20px 0; padding: 15px; background: rgba(29, 62, 46, 0.08); border-radius: 18px; display: flex; justify-content: space-between;">
-                <b>المجموع</b>
-                <b id="totalAmount">0 ج.م</b>
+            
+            <div style="margin: 20px 0; padding: 15px; background: rgba(29, 62, 46, 0.08); border-radius: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <b>المجموع</b>
+                    <b id="totalAmount">0 ج.م</b>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--desc-text); text-align: left; font-weight: 800; margin-top: 6px;">
+                    + رسوم التوصيل تحدد على الواتساب
+                </div>
             </div>
 
             <div class="order-type-container">
@@ -309,6 +329,7 @@
         let currentTotal = 0; 
         let deferredPrompt;
         let selectedOrderType = 'delivery';
+        let pendingCartItem = null;
 
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
@@ -520,15 +541,56 @@
                 finalName += ` [${size}]`;
             }
 
-            cart.push({name: finalName, price: price, img: img, category: category});
-            
+            // حفظ بيانات الطلب المعلق وإظهار التنبيه
+            pendingCartItem = {
+                clickCoords: { x: e.clientX, y: e.clientY },
+                btn: btn,
+                img: img,
+                item: { name: finalName, price: price, img: img, category: category }
+            };
+
+            document.getElementById('noticeModal').style.display = 'flex';
+        }
+
+        function closeNoticeModal() {
+            document.getElementById('noticeModal').style.display = 'none';
+            pendingCartItem = null;
+        }
+
+        function confirmAddToCart() {
+            if (!pendingCartItem) return;
+
+            const { clickCoords, btn, img, item } = pendingCartItem;
+            cart.push(item);
+
             btn.innerText = 'تم الطلب'; btn.classList.add('added');
             setTimeout(() => { btn.innerText = 'اطلب'; btn.classList.remove('added'); }, 2000);
-            
-            const fly = document.createElement('div'); fly.className = 'fly-item'; fly.innerHTML = '🍗'; fly.style.left = e.clientX + 'px'; fly.style.top = e.clientY + 'px'; document.body.appendChild(fly);
-            const cartBtn = document.getElementById('cartBtn'); const cartPos = cartBtn.getBoundingClientRect();
-            setTimeout(() => { fly.style.left = (cartPos.left + 20) + 'px'; fly.style.top = (cartPos.top + 20) + 'px'; fly.style.transform = 'scale(0.2)'; fly.style.opacity = '0'; }, 10);
-            setTimeout(() => { fly.remove(); updateCart(); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); }, 700);
+
+            const fly = document.createElement('div'); 
+            fly.className = 'fly-item'; 
+            fly.innerHTML = '🍗'; 
+            fly.style.left = clickCoords.x + 'px'; 
+            fly.style.top = clickCoords.y + 'px'; 
+            document.body.appendChild(fly);
+
+            const cartBtn = document.getElementById('cartBtn'); 
+            const cartPos = cartBtn.getBoundingClientRect();
+
+            setTimeout(() => { 
+                fly.style.left = (cartPos.left + 20) + 'px'; 
+                fly.style.top = (cartPos.top + 20) + 'px'; 
+                fly.style.transform = 'scale(0.2)'; 
+                fly.style.opacity = '0'; 
+            }, 10);
+
+            setTimeout(() => { 
+                fly.remove(); 
+                updateCart(); 
+                cartBtn.classList.add('shake'); 
+                setTimeout(() => cartBtn.classList.remove('shake'), 500); 
+            }, 700);
+
+            closeNoticeModal();
         }
 
         function updateCart() {
@@ -565,31 +627,35 @@
             const n = document.getElementById('uName').value, p = document.getElementById('uPhone').value, a = document.getElementById('uAddr').value;
             
             if (!n || !p || cart.length === 0) {
-                return alert("يرجى إكمال البيانات وااختيار الأصناف");
+                return alert("يرجى إكمال البيانات واختيار الأصناف");
             }
             if (selectedOrderType === 'delivery' && !a) {
                 return alert("يرجى إدخال عنوان التوصيل بالتفصيل");
             }
 
-            const typeLabel = selectedOrderType === 'delivery' ? 'دليفري' : 'تيك اواي';
+            const typeLabel = selectedOrderType === 'delivery' ? 'دليفري 🛵' : 'تيك اواي 🛍️';
             
-            let msg = `✨ *طلب جديد من قرية السمان* ✨\n\n`;
+            // صياغة رسالة الواتساب بشكل منظم، مريح وشامل
+            let msg = `🍗 *طلب جديد - قرية السمان* 🍗\n`;
+            msg += `=========================\n\n`;
             
             msg += `👤 *الاسم:* ${n}\n`;
-            msg += `📱 *الهاتف:* ${p}\n`;
+            msg += `📱 *رقم الهاتف:* ${p}\n`;
             msg += `🛵 *نوع الطلب:* ${typeLabel}\n`;
             
             if (selectedOrderType === 'delivery') {
-                msg += `📍 *العنوان:* ${a}\n`;
+                msg += `📍 *العنوان بالتفصيل:* ${a}\n`;
             }
             
-            msg += `\n*الطلبات:* \n`;
+            msg += `\n📋 *تفاصيل الطلبات:* \n`;
             msg += `-------------------------\n`;
-            msg += cart.map((i, index) => `${index + 1}. ${i.name} [من قسم: ${i.category}] - (${i.price} ج.م)`).join('\n') + `\n`;
+            msg += cart.map((i, index) => `${index + 1}. *${i.name}*\n   ▪️ القسم: ${i.category}\n   ▪️ السعر: ${i.price} ج.م`).join('\n\n') + `\n`;
             msg += `-------------------------\n\n`;
             
-            msg += `💰 *الإجمالي النهائي:* *${currentTotal} ج.م*\n\n`;
-            msg += `نأمل أن تنال خدمتنا رضاكم دائماً. ✨`;
+            msg += `💰 *إجمالي الأصناف:* *${currentTotal} ج.م*\n`;
+            msg += `🚚 *رسوم التوصيل:* (تحدد عبر المحادثة)\n\n`;
+            msg += `⏰ *ملاحظة التجهيز:* تم العلم بأن الطلب يستغرق تحضيره يوماً تقريباً أو الطلب صباحاً للتوصيل بنفس اليوم.\n\n`;
+            msg += `شكراً لاختياركم قرية السمان! ✨`;
 
             window.open(`https://wa.me/201276191448?text=${encodeURIComponent(msg)}`);
         }
